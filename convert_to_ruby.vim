@@ -16,6 +16,7 @@ fun! s:ConvertToRuby()
   call s:ConvertInstanceVariableDefinitions()
   call s:ConvertMethodDefinitions()
   call s:ConvertParameterLists()
+  call s:ConvertLocalVariables()
   call s:ConvertThisDot()
   call s:ConvertStandardMethods()
   call s:ConvertStringContains()
@@ -167,6 +168,13 @@ fun! s:ConvertParameterLists()
   normal gg
   while search("^\\s*def ", 'W') > 0
     s/\w\+ \(\w\+[,)]\)/\1/ge
+  endwhile
+endfun
+
+fun! s:ConvertLocalVariables()
+  normal gg
+  while search("^\\s*\\(boolean\\)\\s\\+\\w\\+\\s*=\\s*\\w\\+\\s*;$", 'W') > 0
+    normal ^dw
   endwhile
 endfun
 

@@ -1049,7 +1049,7 @@ module MobileESPConverted
 
 =end
     def detect_tier_rich_css()
-      boolean result = false
+      result = false
 
 
       if (detect_mobile_quick())
