@@ -1,17 +1,17 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path('../lib/mobileesp/version', __FILE__)
+require File.expand_path('../lib/mobileesp_converted/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.authors       = ["Jiří Stránský"]
+  gem.authors       = ["Anthony Hand", "Jiří Stránský"]
   gem.email         = ["jistr@jistr.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = %q{Autoconverted version (from Java to Ruby) of MobileESP library.}
+  gem.summary       = %q{Provides device type detection based on HTTP request headers.}
+  gem.homepage      = "http://github.com/jistr/mobileesp_converted"
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.files         = `git ls-files`.split("\n")
   gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  gem.name          = "mobileesp"
+  gem.name          = "mobileesp_converted"
   gem.require_paths = ["lib"]
-  gem.version       = Mobileesp::VERSION
+  gem.version       = MobileESPConverted::VERSION
 end

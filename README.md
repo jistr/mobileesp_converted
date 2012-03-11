@@ -1,29 +1,16 @@
-# Mobileesp
+# MobileESPConverted
 
-TODO: Write a gem description
+This is a Ruby implementation of MobileESP library. It has been automatically
+generated from Java source code from the
+[official MobileESP repository](http://code.google.com/p/mobileesp/source/browse).
 
-## Installation
+MobileESP provides device type detection (tablet, mobile, etc.) based on HTTP
+request headers.
 
-Add this line to your application's Gemfile:
 
-    gem 'mobileesp'
+## License and more info
 
-And then execute:
+I just converted the code to Ruby, the original author is Anthony Hand.
 
-    $ bundle
+For licensing of MobileESP and more info see [MobileESP official site](http://mobileesp.com).
 
-Or install it yourself as:
-
-    $ gem install mobileesp
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Added some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request

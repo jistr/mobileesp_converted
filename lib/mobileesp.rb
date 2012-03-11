@@ -1,5 +1,5 @@
-require "mobileesp/version"
+require "mobileesp_converted/version"
+require "mobileesp_converted/u_agent_info"
 
-module Mobileesp
-  # Your code goes here...
+module MobileESPConverted
 end
