@@ -21,6 +21,7 @@ fun! s:ConvertToRuby()
   call s:ConvertStringContains()
   call s:WrapIntoModule()
   call s:RemoveSemicolons()
+  call s:JoinLinesBeginningWithLogicOperators()
   call s:FixIndent()
   call s:PrependConversionNotice()
 endfun
@@ -187,6 +188,13 @@ endfun
 
 fun! s:RemoveSemicolons()
   %s/;$//
+endfun
+
+fun! s:JoinLinesBeginningWithLogicOperators()
+  normal gg
+  while search("^\\s*\\(&&\\|||\\)", 'W') > 0
+    normal kJ
+  endwhile
 endfun
 
 fun! s:WrapIntoModule()
