@@ -14,4 +14,11 @@ Gem::Specification.new do |gem|
   gem.name          = "mobileesp_converted"
   gem.require_paths = ["lib"]
   gem.version       = MobileESPConverted::VERSION
+
+  # == DEVELOPMENT DEPENDENCIES ==
+  # Smart irb
+  gem.add_development_dependency 'pry'
+
+  # Specs
+  gem.add_development_dependency 'minitest'
 end
