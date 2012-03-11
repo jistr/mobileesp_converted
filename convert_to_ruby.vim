@@ -20,6 +20,7 @@ fun! s:ConvertToRuby()
   call s:ConvertStandardMethods()
   call s:ConvertStringContains()
   call s:WrapIntoModule()
+  call s:RemoveSemicolons()
   call s:FixIndent()
   call s:PrependConversionNotice()
 endfun
@@ -182,6 +183,10 @@ fun! s:ConvertStringContains()
 
   " does not contain
   %s/\<\(\w*\)\.indexOf(\([^)]\+\))\_s*<\_s*0/!\1.include?(\2)/g
+endfun
+
+fun! s:RemoveSemicolons()
+  %s/;$//
 endfun
 
 fun! s:WrapIntoModule()
