@@ -9,7 +9,7 @@
 # File version date: January 21, 2012
 #        Update:
 #        - Moved Windows Phone 7 to the iPhone Tier. WP7.5's IE 9-based browser is good enough now.
-#        - Added a new variable for 2 versions of the new BlackBerry Bold Touch (9900 and 9930): DEVICE_B_B_BOLD_TOUCH.
+#        - Added a new variable for 2 versions of the new BlackBerry Bold Touch (9900 and 9930): deviceBBBoldTouch.
 #        - Updated DetectBlackBerryTouch() to support the 2 versions of the new BlackBerry Bold Touch (9900 and 9930).
 #        - Updated DetectKindle() to focus on eInk devices only. The Kindle Fire should be detected as a regular Android device.
 #
@@ -19,14 +19,14 @@
 #
 # File version date: August 16, 2011
 #        Update:
-#        - Updated DetectAndroidTablet() to exclude Opera MINI, which was falsely reporting as running on a tablet device when on a phone.
+#        - Updated DetectAndroidTablet() to exclude Opera Mini, which was falsely reporting as running on a tablet device when on a phone.
 #
 # File version date: August 7, 2011
 #        Update:
 #        - The Opera for Android browser doesn't follow Google's recommended useragent string guidelines, so some fixes were needed.
-#        - Updated DetectAndroidPhone() and DetectAndroidTablet() to properly detect devices running Opera MOBILE.
+#        - Updated DetectAndroidPhone() and DetectAndroidTablet() to properly detect devices running Opera Mobile.
 #        - Created 2 new methods: DetectOperaAndroidPhone() and DetectOperaAndroidTablet().
-#        - Updated DetectTierIphone(). Removed the call to DetectMaemoTablet(), an obsolete MOBILE OS.
+#        - Updated DetectTierIphone(). Removed the call to DetectMaemoTablet(), an obsolete mobile OS.
 #
 #
 # LICENSE INFORMATION
@@ -60,7 +60,7 @@
  * The DetectSmartPhone class encapsulates information about
  *   a browser's connection to your web site.
  *   You can use it to find out whether the browser asking for
- *   your site's content is probably running on a MOBILE device.
+ *   your site's content is probably running on a mobile device.
  *   The methods were written so you can be as granular as you want.
  *   For example, enquiring whether it's as specific as an iPod Touch or
  *   as general as a smartphone class device.
@@ -131,7 +131,7 @@ module MobileESPConverted
 
 
     VNDWAP = "vnd.wap"
-    WML = "WML"
+    WML = "wml"
 
 
     DEVICE_TABLET = "tablet"
@@ -153,13 +153,13 @@ module MobileESPConverted
     UPLINK = "up.link"
     ENGINE_TELECA_Q = "teleca q"
     DEVICE_PDA = "pda"
-    MINI = "MINI"
-    MOBILE = "MOBILE"
-    MOBI = "MOBI"
+    MINI = "mini"
+    MOBILE = "mobile"
+    MOBI = "mobi"
 
 
-    MAEMO = "MAEMO"
-    LINUX = "LINUX"
+    MAEMO = "maemo"
+    LINUX = "linux"
     QTEMBEDDED = "qt embedded"
     MYLOCOM2 = "com2"
 
@@ -251,7 +251,7 @@ module MobileESPConverted
 
 =begin
 *
-     * Return whether the device is in the 'Rich CSS' tier of MOBILE devices.
+     * Return whether the device is in the 'Rich CSS' tier of mobile devices.
      * @return is_tier_rich_css
 
 =end
@@ -261,7 +261,7 @@ module MobileESPConverted
 
 =begin
 *
-     * Return whether the device is a generic, less-capable MOBILE device.
+     * Return whether the device is a generic, less-capable mobile device.
      * @return is_tier_generic_mobile
 
 =end
@@ -376,7 +376,7 @@ module MobileESPConverted
 *
      * Detects if the current device is a (small-ish) Android OS-based device
      * used for calling and/or multi-media (like a Samsung Galaxy Player).
-     * Google says these devices will have 'Android' AND 'MOBILE' in user agent.
+     * Google says these devices will have 'Android' AND 'mobile' in user agent.
      * Ignores tablets (Honeycomb and later).
      * @return  detection of an Android phone
 
@@ -399,7 +399,7 @@ module MobileESPConverted
 =begin
 *
      * Detects if the current device is a (self-reported) Android tablet.
-     * Google says these devices will have 'Android' and NOT 'MOBILE' in their user agent.
+     * Google says these devices will have 'Android' and NOT 'mobile' in their user agent.
      * @return detection of an Android tablet
 
 =end
@@ -512,10 +512,10 @@ module MobileESPConverted
 
 =begin
 *
-     * Detects if the current browser is a Windows MOBILE device.
+     * Detects if the current browser is a Windows Mobile device.
      * Excludes Windows Phone 7 devices.
-     * Focuses on Windows MOBILE 6.xx and earlier.
-     * @return detection of Windows MOBILE
+     * Focuses on Windows Mobile 6.xx and earlier.
+     * @return detection of Windows Mobile
 
 =end
     def detect_windows_mobile()
@@ -747,8 +747,8 @@ module MobileESPConverted
 
 =begin
 *
-     * Detects Opera MOBILE or Opera MINI.
-     * @return detection of an Opera browser for a MOBILE device
+     * Detects Opera Mobile or Opera Mini.
+     * @return detection of an Opera browser for a mobile device
 
 =end
     def detect_opera_mobile()
@@ -760,7 +760,7 @@ module MobileESPConverted
 
 =begin
 *
-     * Detects Opera MOBILE on an Android phone.
+     * Detects Opera Mobile on an Android phone.
      * @return detection of an Opera browser on an Android phone
 
 =end
@@ -773,7 +773,7 @@ module MobileESPConverted
 
 =begin
 *
-     * Detects Opera MOBILE on an Android tablet.
+     * Detects Opera Mobile on an Android tablet.
      * @return detection of an Opera browser on an Android tablet
 
 =end
@@ -814,10 +814,10 @@ module MobileESPConverted
 
 =begin
 *
-     *    Detects if the current device is a MOBILE device.
+     *    Detects if the current device is a mobile device.
      *  This method catches most of the popular modern devices.
      *  Excludes Apple iPads and other modern tablets.
-     * @return detection of any MOBILE device using the quicker method
+     * @return detection of any mobile device using the quicker method
 
 =end
     def detect_mobile_quick()
@@ -907,8 +907,8 @@ module MobileESPConverted
 
 =begin
 *
-     * Detects if the current device supports MIDP, a MOBILE Java technology.
-     * @return detection of a MIDP MOBILE Java-capable device
+     * Detects if the current device supports MIDP, a mobile Java technology.
+     * @return detection of a MIDP mobile Java-capable device
 
 =end
     def detect_midp_capable()
@@ -920,8 +920,8 @@ module MobileESPConverted
 
 =begin
 *
-     * Detects if the current device is on one of the MAEMO-based Nokia Internet Tablets.
-     * @return detection of a MAEMO OS tablet
+     * Detects if the current device is on one of the Maemo-based Nokia Internet Tablets.
+     * @return detection of a Maemo OS tablet
 
 =end
     def detect_maemo_tablet()
@@ -961,13 +961,13 @@ module MobileESPConverted
 
 =begin
 *
-     * The longer and more thorough way to detect for a MOBILE device.
+     * The longer and more thorough way to detect for a mobile device.
      *   Will probably detect most feature phones,
      *   smartphone-class devices, Internet Tablets,
      *   Internet-enabled game consoles, etc.
      *   This ought to catch a lot of the more obscure and older devices, also --
      *   but no promises on thoroughness!
-     * @return detection of any MOBILE device using the more thorough method
+     * @return detection of any mobile device using the more thorough method
 
 =end
     def detect_mobile_long()
@@ -1072,7 +1072,7 @@ module MobileESPConverted
      * The quick way to detect for a tier of devices.
      *   This method detects for all other types of phones,
      *   but excludes the iPhone and RichCSS Tier devices.
-     * @return detection of a MOBILE device in the less capable tier
+     * @return detection of a mobile device in the less capable tier
 
 =end
     def detect_tier_other_phones()

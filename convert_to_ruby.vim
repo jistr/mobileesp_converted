@@ -120,7 +120,7 @@ fun! s:ConvertConstantDefinitions()
     normal ve"xy
 
     " replace the identifier in the whole document
-    exe "%s/\\<" . getreg('z') . "\\>/" . getreg('x') . "/g"
+    exe "%s/(" . getreg('z') . ")/(" . getreg('x') . ")/g"
   endwhile
 endfun
 
