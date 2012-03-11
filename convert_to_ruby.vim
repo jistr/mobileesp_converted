@@ -1,4 +1,6 @@
 " Vim script to convert MobileESP library from Java to Ruby
+" Author: Jiri Stransky
+" License: MIT
 
 fun! s:ConvertToRuby()
   set filetype=ruby
@@ -17,7 +19,9 @@ fun! s:ConvertToRuby()
   call s:ConvertThisDot()
   call s:ConvertStandardMethods()
   call s:ConvertStringContains()
+  call s:WrapIntoModule()
   call s:FixIndent()
+  call s:PrependConversionNotice()
 endfun
 
 fun! s:TabsToSpaces()
@@ -31,14 +35,29 @@ fun! s:FixTrailingSpaces()
 endfun
 
 fun! s:FixShorthandIfs()
+  " make sure opening bracket is on the line of the condition
   normal gg
   while search("^\\s*{$", 'W') > 0
     normal kJ
   endwhile
 
+  " if / else if
   normal gg
-  while search("^\\s\\+if ", 'W') > 0
+  while search("^\\s\\+\\(if\\|else if\\)", 'W') > 0
     normal f(%$
+    normal v"zy
+    let l:lastchar = getreg('z')
+    if l:lastchar != '{'
+      s/$/ {/
+      call search(';', 'W')
+      s/$/\r}/
+    endif
+  endwhile
+
+  " else
+  normal gg
+  while search("^\\s\\+else[\s{]*$", 'W') > 0
+    normal $
     normal v"zy
     let l:lastchar = getreg('z')
     if l:lastchar != '{'
@@ -71,6 +90,10 @@ endfun
 
 fun! s:ConvertBrackets()
   %s/\s*{$//
+
+  %s/}\_s*else if/elsif/
+  %s/}\_s*else/else/
+
   %s/}\(\s*#.*\)\?$/end/
 endfun
 
@@ -154,7 +177,27 @@ fun! s:ConvertStandardMethods()
 endfun
 
 fun! s:ConvertStringContains()
-  " TODO here
+  " contains
+  %s/\.indexOf(\([^)]\+\))\_s*\(!=\|>\)\_s*-1/.include?(\1)/g
+
+  " does not contain
+  %s/\<\(\w*\)\.indexOf(\([^)]\+\))\_s*<\_s*0/!\1.include?(\2)/g
+endfun
+
+fun! s:WrapIntoModule()
+  normal gg
+  call search("class UAgentInfo")
+  exe "normal Omodule MobileESPConverted\e"
+  normal G
+  exe "normal oend\e"
+endfun
+
+fun! s:PrependConversionNotice()
+  normal gg
+  exe "normal O# This file has been automatically converted to Ruby from Java source code.\e"
+  exe "normal o\e"
+  exe "normal o\e"
+  exe "normal o\e"
 endfun
 
 fun! s:Underscore(text)
