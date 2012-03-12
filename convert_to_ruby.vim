@@ -106,7 +106,7 @@ fun! s:ConvertKeywords()
 endfun
 
 fun! s:ConvertClassDefinitions()
-  %s/public class/class/
+  %s/public class UAgentInfo/class UserAgentInfo/
 endfun
 
 fun! s:ConvertConstantDefinitions()
@@ -208,7 +208,7 @@ endfun
 
 fun! s:WrapIntoModule()
   normal gg
-  call search("class UAgentInfo")
+  call search("class UserAgentInfo")
   exe "normal Omodule MobileESPConverted\e"
   normal G
   exe "normal oend\e"

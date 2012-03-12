@@ -68,7 +68,7 @@
 
 =end
 module MobileESPConverted
-  class UAgentInfo
+  class UserAgentInfo
 
 
     attr_reader :user_agent
