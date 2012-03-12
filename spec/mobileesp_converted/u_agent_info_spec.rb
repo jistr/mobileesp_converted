@@ -17,9 +17,10 @@ module MobileESPConverted
 
       it "categorizes iPad/Safari" do
         uai = UAgentInfo.new("Mozilla/5.0 (iPad; U; CPU iPhone OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B314 Safari/531.21.10", "text/html")
+        uai.detect_ipad.must_equal true
+        uai.is_iphone.must_equal false
         uai.is_tier_tablet.must_equal true
-        # strangely, MobileESP categorizes iPad UA into 'tier_iphone' as well as 'tier_tablet'
-        uai.is_tier_iphone.must_equal true
+        uai.is_tier_iphone.must_equal false
         uai.is_tier_rich_css.must_equal false
         uai.is_tier_generic_mobile.must_equal false
         uai.detect_iphone.must_equal false

@@ -333,7 +333,7 @@ module MobileESPConverted
 =end
     def detect_iphone_or_ipod()
 
-      if (user_agent.include?(DEVICE_IPHONE) || user_agent.include?(DEVICE_IPOD))
+      if (detect_iphone() || user_agent.include?(DEVICE_IPOD))
         return true
       end
       return false

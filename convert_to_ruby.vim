@@ -23,6 +23,7 @@ fun! s:ConvertToRuby()
   call s:WrapIntoModule()
   call s:RemoveSemicolons()
   call s:JoinLinesBeginningWithLogicOperators()
+  call s:FixBugs()
   call s:FixIndent()
   call s:PrependConversionNotice()
 endfun
@@ -219,6 +220,11 @@ fun! s:PrependConversionNotice()
   exe "normal o\e"
   exe "normal o\e"
   exe "normal o\e"
+endfun
+
+fun! s:FixBugs()
+  " fix detect_iphone_or_ipod
+  %s/^\s*if (user_agent.include?(DEVICE_IPHONE) || user_agent.include?(DEVICE_IPOD))$/if (detect_iphone() || user_agent.include?(DEVICE_IPOD))
 endfun
 
 fun! s:Underscore(text)
