@@ -19,6 +19,7 @@ Gem::Specification.new do |gem|
   # Smart irb
   gem.add_development_dependency 'pry'
 
+  gem.add_development_dependency 'rake'
   # Specs
   gem.add_development_dependency 'minitest'
 end
