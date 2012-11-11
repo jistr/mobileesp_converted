@@ -6,6 +6,21 @@
  *******************************************
 # Copyright 2010-2012, Anthony Hand
 #
+# File version date: April 23, 2012
+#        Update:
+#        - Updated DetectAmazonSilk(): Fixed an issue in the detection logic.
+#
+# File version date: April 22, 2012 - Second update
+#        Update: To address additional Kindle issues...
+#        - Updated DetectRichCSS(): Excluded e-Ink Kindle devices.
+#        - Created DetectAmazonSilk(): Created to detect Kindle Fire devices in Silk mode.
+#        - Updated DetectMobileQuick(): Updated to include e-Ink Kindle devices and the Kindle Fire in Silk mode.
+#
+# File version date: April 11, 2012
+#        Update:
+#        - Added a new variable for the new BlackBerry Curve Touch (9380): deviceBBCurveTouch.
+#        - Updated DetectBlackBerryTouch() to support the new BlackBerry Curve Touch (9380).
+#
 # File version date: January 21, 2012
 #        Update:
 #        - Moved Windows Phone 7 to the iPhone Tier. WP7.5's IE 9-based browser is good enough now.
@@ -20,13 +35,6 @@
 # File version date: August 16, 2011
 #        Update:
 #        - Updated DetectAndroidTablet() to exclude Opera Mini, which was falsely reporting as running on a tablet device when on a phone.
-#
-# File version date: August 7, 2011
-#        Update:
-#        - The Opera for Android browser doesn't follow Google's recommended useragent string guidelines, so some fixes were needed.
-#        - Updated DetectAndroidPhone() and DetectAndroidTablet() to properly detect devices running Opera Mobile.
-#        - Created 2 new methods: DetectOperaAndroidPhone() and DetectOperaAndroidTablet().
-#        - Updated DetectTierIphone(). Removed the call to DetectMaemoTablet(), an obsolete mobile OS.
 #
 #
 # LICENSE INFORMATION
@@ -115,6 +123,7 @@ module MobileESPConverted
     DEVICE_B_B_BOLD_TOUCH = "blackberry 99"
     DEVICE_B_B_TOUR = "blackberry96"
     DEVICE_B_B_CURVE = "blackberry89"
+    DEVICE_B_B_CURVE_TOUCH = "blackberry 938"
     DEVICE_B_B_TORCH = "blackberry 98"
     DEVICE_B_B_PLAYBOOK = "playbook"
 
@@ -126,6 +135,7 @@ module MobileESPConverted
     ENGINE_XIINO = "xiino"
 
     DEVICE_KINDLE = "kindle"
+    ENGINE_SILK = "silk"
 
     DEVICE_NUVIFONE = "nuvifone"
 
@@ -595,7 +605,8 @@ module MobileESPConverted
       if (detect_black_berry() &&
           (user_agent.include?(DEVICE_B_B_STORM) ||
            user_agent.include?(DEVICE_B_B_TORCH) ||
-           user_agent.include?(DEVICE_B_B_BOLD_TOUCH)))
+           user_agent.include?(DEVICE_B_B_BOLD_TOUCH) ||
+           user_agent.include?(DEVICE_B_B_CURVE_TOUCH) ))
         return true
       end
       return false
@@ -814,6 +825,20 @@ module MobileESPConverted
 
 =begin
 *
+     * Detects if the current Amazon device is using the Silk Browser.
+     * Note: Typically used by the the Kindle Fire.
+     * @return detection of an Amazon Kindle Fire in Silk mode.
+
+=end
+    def detect_amazon_silk()
+      if (user_agent.include?(ENGINE_SILK))
+        return true
+      end
+      return false
+    end
+
+=begin
+*
      *    Detects if the current device is a mobile device.
      *  This method catches most of the popular modern devices.
      *  Excludes Apple iPads and other modern tablets.
@@ -847,6 +872,11 @@ module MobileESPConverted
         return true
       end
       if (user_agent.include?(MOBILE))
+        return true
+      end
+
+
+      if (detect_kindle() || detect_amazon_silk())
         return true
       end
 
@@ -1054,7 +1084,8 @@ module MobileESPConverted
 
       if (detect_mobile_quick())
 
-        if (!detect_tier_iphone())
+
+        if (!detect_tier_iphone() && !detect_kindle())
 
 
 

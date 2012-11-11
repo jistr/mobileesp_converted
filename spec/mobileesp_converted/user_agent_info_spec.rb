@@ -106,6 +106,32 @@ module MobileESPConverted
         uai.detect_android_phone.must_equal false
         uai.detect_android_tablet.must_equal false
       end
+
+      # categorization according to original MobileESP implementation
+      it "categorizes Kindle Fire" do
+        uai = UserAgentInfo.new("Mozilla/5.0 (Linux; U; Android 2.3.4; en-us; Kindle Fire Build/GINGERBREAD) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", "text/html")
+        uai.is_tier_tablet.must_equal false
+        uai.is_tier_iphone.must_equal true
+        uai.is_tier_rich_css.must_equal false
+        uai.is_tier_generic_mobile.must_equal false
+        uai.detect_iphone.must_equal false
+        uai.detect_ipad.must_equal false
+        uai.detect_android_phone.must_equal true
+        uai.detect_android_tablet.must_equal false
+      end
+
+      # categorization according to original MobileESP implementation
+      it "categorizes Kindle Fire silk mode" do
+        uai = UserAgentInfo.new("Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-80) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=true", "text/html")
+        uai.is_tier_tablet.must_equal false
+        uai.is_tier_iphone.must_equal false
+        uai.is_tier_rich_css.must_equal true
+        uai.is_tier_generic_mobile.must_equal false
+        uai.detect_iphone.must_equal false
+        uai.detect_ipad.must_equal false
+        uai.detect_android_phone.must_equal false
+        uai.detect_android_tablet.must_equal false
+      end
     end
   end
 end
