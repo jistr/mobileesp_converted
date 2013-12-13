@@ -42,9 +42,35 @@ module MobileESPConverted
         uai.detect_android_tablet.must_equal false
       end
 
+      it "categorizes Android 4 phone / Custom Android Browser" do
+        # UA string for Xiaomi Hongmi (Red Rice)
+        uai = UserAgentInfo.new("Mozilla/5.0 (Linux; U; Android 4.2.1; ru-ru; HM2013023 Build/JOP40D) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 XiaoMi/MiuiBrowser/1.0", "text/html")
+        uai.is_tier_tablet.must_equal false
+        uai.is_tier_iphone.must_equal true
+        uai.is_tier_rich_css.must_equal false
+        uai.is_tier_generic_mobile.must_equal false
+        uai.detect_iphone.must_equal false
+        uai.detect_ipad.must_equal false
+        uai.detect_android_phone.must_equal true
+        uai.detect_android_tablet.must_equal false
+      end
+
       it "categorizes Android tablet / Android Browser" do
         # UA string for Motorola Xoom
         uai = UserAgentInfo.new("Mozilla/5.0 (Linux; U; Android 3.0; en-us; Xoom Build/HRI39) AppleWebKit/534.13 (KHTML, like Gecko) Version/4.0 Safari/534.13", "text/html")
+        uai.is_tier_tablet.must_equal true
+        uai.is_tier_iphone.must_equal false
+        uai.is_tier_rich_css.must_equal false
+        uai.is_tier_generic_mobile.must_equal false
+        uai.detect_iphone.must_equal false
+        uai.detect_ipad.must_equal false
+        uai.detect_android_phone.must_equal false
+        uai.detect_android_tablet.must_equal true
+      end
+
+      it "categorizes Android tablet / Chrome Browser" do
+        # UA string for Chrome on Pipo M9 Pro
+        uai = UserAgentInfo.new("Mozilla/5.0 (Linux; Android 4.2.2; M9pro Build/JDQ39) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.59 Safari/537.36", "text/html")
         uai.is_tier_tablet.must_equal true
         uai.is_tier_iphone.must_equal false
         uai.is_tier_rich_css.must_equal false
