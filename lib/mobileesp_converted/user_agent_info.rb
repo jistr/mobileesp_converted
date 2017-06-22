@@ -1,29 +1,47 @@
 # This file has been automatically converted to Ruby from Java source code.
-
-
+#
+#
+#
 =begin
-*******************************************
-# Copyright 2010-2013, Anthony Hand
+ *******************************************
+# Copyright 2010-2015, Anthony Hand
 #
-# File version 2013.08.01 (August 1, 2013)
-#    Updates:
-#    - Updated DetectMobileQuick(). Moved the 'Exclude Tablets' logic to the top of the method to fix a logic bug.
 #
-# File version 2013.07.13 (July 13, 2013)
-#    Updates:
-#    - Added support for Tizen: variable and DetectTizen().
-#    - Added support for Meego: variable and DetectMeego().
-#    - Added support for Windows Phone 8: variable and DetectWindowsPhone8().
-#    - Added a generic Windows Phone method: DetectWindowsPhone().
-#    - Added support for BlackBerry 10 OS: variable and DetectBlackBerry10Phone().
-#    - Added support for PlayStation Vita handheld: variable and DetectGamingHandheld().
-#    - Updated DetectTierIphone(). Added Tizen; updated the Windows Phone, BB10, and PS Vita support.
-#    - Updated DetectWindowsMobile(). Uses generic DetectWindowsPhone() method rather than WP7.
-#    - Updated DetectSmartphone(). Uses the detect_tier_iphone() method.
-#    - Updated DetectSonyMylo() with more efficient code.
-#    - Removed DetectGarminNuvifone() from DetectTierIphone(). How many are left in market in 2013? It is detected as a RichCSS Tier device.
-#    - Removed the deviceXoom variable. It was unused.
-#    - Added detection support for the Obigo mobile browser to DetectMobileQuick().
+# File version 2015.05.13 (May 13, 2015)
+# Updates:
+#    - Moved MobileESP to GitHub. https:
+#    - Opera Mobile/Mini browser has the same UA string on multiple platforms and doesn't differentiate phone vs. tablet.
+#        - Removed DetectOperaAndroidPhone(). This method is no longer reliable.
+#        - Removed DetectOperaAndroidTablet(). This method is no longer reliable.
+#    - Added support for Windows Phone 10: variable and DetectWindowsPhone10()
+#    - Updated DetectWindowsPhone() to include WP10.
+#    - Added support for Firefox OS.
+#        - A variable plus DetectFirefoxOS(), DetectFirefoxOSPhone(), DetectFirefoxOSTablet()
+#        - NOTE: Firefox doesn't add UA tokens to definitively identify Firefox OS vs. their browsers on other mobile platforms.
+#    - Added support for Sailfish OS. Not enough info to add a tablet detection method at this time.
+#        - A variable plus DetectSailfish(), DetectSailfishPhone()
+#    - Added support for Ubuntu Mobile OS.
+#        - DetectUbuntu(), DetectUbuntuPhone(), DetectUbuntuTablet()
+#    - Added support for 2 smart TV OSes. They lack browsers but do have WebViews for use by HTML apps.
+#        - One variable for Samsung Tizen TVs, plus DetectTizenTV()
+#        - One variable for LG WebOS TVs, plus DetectWebOSTV()
+#    - Updated DetectTizen(). Now tests for "mobile" to disambiguate from Samsung Smart TVs
+#    - Removed variables for obsolete devices: deviceHtcFlyer, deviceXoom.
+#    - Updated DetectAndroid(). No longer has a special test case for the HTC Flyer tablet.
+#    - Updated DetectAndroidPhone().
+#        - Updated internal detection code for Android.
+#        - No longer has a special test case for the HTC Flyer tablet.
+#        - Checks against DetectOperaMobile() on Android and reports here if relevant.
+#    - Updated DetectAndroidTablet().
+#        - No longer has a special test case for the HTC Flyer tablet.
+#        - Checks against DetectOperaMobile() on Android to exclude it from here.
+#    - DetectMeego(): Changed definition for this method. Now detects any Meego OS device, not just phones.
+#    - DetectMeegoPhone(): NEW. For Meego phones. Ought to detect Opera browsers on Meego, as well.
+#    - DetectTierIphone(): Added support for phones running Sailfish, Ubuntu and Firefox Mobile.
+#    - DetectTierTablet(): Added support for tablets running Ubuntu and Firefox Mobile.
+#    - DetectSmartphone(): Added support for Meego phones.
+#    - Refactored the detection logic in DetectMobileQuick() and DetectMobileLong().
+#        - Moved a few detection tests for older browsers to Long.
 #
 #
 #
@@ -43,7 +61,7 @@
 #   Project Owner: Anthony Hand
 #   Email: anthony.hand@gmail.com
 #   Web Site: http:
-#   Source Files: http:
+#   Source Files: https:
 #
 #   Versions of this code are available for:
 #      PHP, JavaScript, Java, ASP.NET (C#), and Ruby
@@ -55,14 +73,14 @@
 
 =begin
 *
-* The DetectSmartPhone class encapsulates information about
-*   a browser's connection to your web site.
-*   You can use it to find out whether the browser asking for
-*   your site's content is probably running on a mobile device.
-*   The methods were written so you can be as granular as you want.
-*   For example, enquiring whether it's as specific as an iPod Touch or
-*   as general as a smartphone class device.
-*   The object's methods return true, or false.
+ * The DetectSmartPhone class encapsulates information about
+ *   a browser's connection to your web site.
+ *   You can use it to find out whether the browser asking for
+ *   your site's content is probably running on a mobile device.
+ *   The methods were written so you can be as granular as you want.
+ *   For example, enquiring whether it's as specific as an iPod Touch or
+ *   as general as a smartphone class device.
+ *   The object's methods return true, or false.
 
 =end
 module MobileESPConverted
@@ -87,102 +105,109 @@ module MobileESPConverted
 
     ENGINE_WEB_KIT = "webkit"
 
-    DEVICE_IPHONE  = "iphone"
-    DEVICE_IPOD    = "ipod"
-    DEVICE_IPAD    = "ipad"
+    DEVICE_IPHONE = "iphone"
+    DEVICE_IPOD = "ipod"
+    DEVICE_IPAD = "ipad"
     DEVICE_MAC_PPC = "macintosh"
 
-    DEVICE_ANDROID    = "android"
+    DEVICE_ANDROID = "android"
     DEVICE_GOOGLE_T_V = "googletv"
-    DEVICE_HTC_FLYER  = "htc_flyer"
 
     DEVICE_WIN_PHONE7 = "windows phone os 7"
     DEVICE_WIN_PHONE8 = "windows phone 8"
-    DEVICE_WIN_MOB    = "windows ce"
-    DEVICE_WINDOWS    = "windows"
-    DEVICE_IE_MOB     = "iemobile"
-    DEVICE_PPC        = "ppc"
-    ENGINE_PIE        = "wm5 pie"
+    DEVICE_WIN_PHONE10 = "windows phone 10"
+    DEVICE_WIN_MOB = "windows ce"
+    DEVICE_WINDOWS = "windows"
+    DEVICE_IE_MOB = "iemobile"
+    DEVICE_PPC = "ppc"
+    ENGINE_PIE = "wm5 pie"
 
-    DEVICE_B_B             = "blackberry"
-    DEVICE_B_B10           = "bb10"
-    VND_R_I_M              = "vnd.rim"
-    DEVICE_B_B_STORM       = "blackberry95"
-    DEVICE_B_B_BOLD        = "blackberry97"
-    DEVICE_B_B_BOLD_TOUCH  = "blackberry 99"
-    DEVICE_B_B_TOUR        = "blackberry96"
-    DEVICE_B_B_CURVE       = "blackberry89"
+    DEVICE_B_B = "blackberry"
+    DEVICE_B_B10 = "bb10"
+    VND_R_I_M = "vnd.rim"
+    DEVICE_B_B_STORM = "blackberry95"
+    DEVICE_B_B_BOLD = "blackberry97"
+    DEVICE_B_B_BOLD_TOUCH = "blackberry 99"
+    DEVICE_B_B_TOUR = "blackberry96"
+    DEVICE_B_B_CURVE = "blackberry89"
     DEVICE_B_B_CURVE_TOUCH = "blackberry 938"
-    DEVICE_B_B_TORCH       = "blackberry 98"
-    DEVICE_B_B_PLAYBOOK    = "playbook"
+    DEVICE_B_B_TORCH = "blackberry 98"
+    DEVICE_B_B_PLAYBOOK = "playbook"
 
     DEVICE_SYMBIAN = "symbian"
-    DEVICE_S60     = "series60"
-    DEVICE_S70     = "series70"
-    DEVICE_S80     = "series80"
-    DEVICE_S90     = "series90"
+    DEVICE_S60 = "series60"
+    DEVICE_S70 = "series70"
+    DEVICE_S80 = "series80"
+    DEVICE_S90 = "series90"
 
-    DEVICE_PALM      = "palm"
-    DEVICE_WEB_O_S   = "webos"
+    DEVICE_PALM = "palm"
+    DEVICE_WEB_O_S = "webos"
+    DEVICE_WEB_O_STV = "web0s"
     DEVICE_WEB_O_SHP = "hpwos"
-    ENGINE_BLAZER    = "blazer"
-    ENGINE_XIINO     = "xiino"
 
     DEVICE_NUVIFONE = "nuvifone"
-    DEVICE_BADA     = "bada"
-    DEVICE_TIZEN    = "tizen"
-    DEVICE_MEEGO    = "meego"
+    DEVICE_BADA = "bada"
+    DEVICE_TIZEN = "tizen"
+    DEVICE_MEEGO = "meego"
+    DEVICE_SAILFISH = "sailfish"
+    DEVICE_UBUNTU = "ubuntu"
 
     DEVICE_KINDLE = "kindle"
-    ENGINE_SILK   = "silk-accelerated"
+    ENGINE_SILK = "silk-accelerated"
+
+    ENGINE_BLAZER = "blazer"
+    ENGINE_XIINO = "xiino"
 
 
     VNDWAP = "vnd.wap"
-    WML    = "wml"
+    WML = "wml"
 
 
-    DEVICE_TABLET           = "tablet"
-    DEVICE_BREW             = "brew"
-    DEVICE_DANGER           = "danger"
-    DEVICE_HIPTOP           = "hiptop"
-    DEVICE_PLAYSTATION      = "playstation"
+    DEVICE_TABLET = "tablet"
+    DEVICE_BREW = "brew"
+    DEVICE_DANGER = "danger"
+    DEVICE_HIPTOP = "hiptop"
+    DEVICE_PLAYSTATION = "playstation"
     DEVICE_PLAYSTATION_VITA = "vita"
-    DEVICE_NINTENDO_DS      = "nitro"
-    DEVICE_NINTENDO         = "nintendo"
-    DEVICE_WII              = "wii"
-    DEVICE_XBOX             = "xbox"
-    DEVICE_ARCHOS           = "archos"
+    DEVICE_NINTENDO_DS = "nitro"
+    DEVICE_NINTENDO = "nintendo"
+    DEVICE_WII = "wii"
+    DEVICE_XBOX = "xbox"
+    DEVICE_ARCHOS = "archos"
 
-    ENGINE_OPERA      = "opera"
-    ENGINE_NETFRONT   = "netfront"
+    ENGINE_FIREFOX = "firefox"
+    ENGINE_OPERA = "opera"
+    ENGINE_NETFRONT = "netfront"
     ENGINE_UP_BROWSER = "up.browser"
-    ENGINE_OPEN_WEB   = "openweb"
-    DEVICE_MIDP       = "midp"
-    UPLINK            = "up.link"
-    ENGINE_TELECA_Q   = "teleca q"
-    ENGINE_OBIGO      = "obigo"
-
+    ENGINE_OPEN_WEB = "openweb"
+    DEVICE_MIDP = "midp"
+    UPLINK = "up.link"
+    ENGINE_TELECA_Q = "teleca q"
     DEVICE_PDA = "pda"
-    MINI       = "mini"
-    MOBILE     = "mobile"
-    MOBI       = "mobi"
+    MINI = "mini"
+    MOBILE = "mobile"
+    MOBI = "mobi"
 
 
-    MAEMO      = "maemo"
-    LINUX      = "linux"
+    SMART_T_V1 = "smart-tv"
+    SMART_T_V2 = "smarttv"
+
+
+    MAEMO = "maemo"
+    LINUX = "linux"
     QTEMBEDDED = "qt embedded"
-    MYLOCOM2   = "com2"
+    MYLOCOM2 = "com2"
 
 
     MANU_SONY_ERICSSON = "sonyericsson"
-    MANUERICSSON       = "ericsson"
-    MANU_SAMSUNG1      = "sec-sgh"
-    MANU_SONY          = "sony"
-    MANU_HTC           = "htc"
+    MANUERICSSON = "ericsson"
+    MANU_SAMSUNG1 = "sec-sgh"
+    MANU_SONY = "sony"
+    MANU_HTC = "htc"
 
 
-    SVC_DOCOMO   = "docomo"
-    SVC_KDDI     = "kddi"
+    SVC_DOCOMO = "docomo"
+    SVC_KDDI = "kddi"
     SVC_VODAFONE = "vodafone"
 
 
@@ -190,7 +215,7 @@ module MobileESPConverted
 
 
 =begin
-     *
+*
      * Initialize the user_agent and http_accept variables
      *
      * @param user_agent the User-Agent header
@@ -210,7 +235,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Return the lower case HTTP_USER_AGENT
      * @return user_agent
 
@@ -220,7 +245,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Return the lower case HTTP_ACCEPT
      * @return http_accept
 
@@ -230,7 +255,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Return whether the device is an Iphone or iPod Touch
      * @return is_iphone
 
@@ -240,7 +265,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Return whether the device is in the Tablet Tier.
      * @return is_tier_tablet
 
@@ -250,7 +275,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Return whether the device is in the Iphone Tier.
      * @return is_tier_iphone
 
@@ -260,7 +285,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Return whether the device is in the 'Rich CSS' tier of mobile devices.
      * @return is_tier_rich_css
 
@@ -270,7 +295,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Return whether the device is a generic, less-capable mobile device.
      * @return is_tier_generic_mobile
 
@@ -280,41 +305,36 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Initialize Key Stored Values.
 
 =end
     def init_device_scan()
 
-      @is_webkit        = detect_webkit()
-      @is_iphone        = detect_iphone()
-      @is_android       = detect_android()
+      @is_webkit = detect_webkit()
+      @is_iphone = detect_iphone()
+      @is_android = detect_android()
       @is_android_phone = detect_android_phone()
 
 
       @is_mobile_phone = detect_mobile_quick()
-      @is_tier_tablet  = detect_tier_tablet()
-      @is_tier_iphone  = detect_tier_iphone()
+      @is_tier_tablet = detect_tier_tablet()
+      @is_tier_iphone = detect_tier_iphone()
 
 
-      @is_tier_rich_css       = detect_tier_rich_css()
+      @is_tier_rich_css = detect_tier_rich_css()
       @is_tier_generic_mobile = detect_tier_other_phones()
 
       @init_completed = true
     end
 
 =begin
-     *
+*
      * Detects if the current device is an iPhone.
      * @return detection of an iPhone
 
 =end
     def detect_iphone()
-      if ((@init_completed == true) ||
-          (@is_iphone == true))
-        return @is_iphone
-      end
-
 
       if (user_agent.include?(DEVICE_IPHONE) &&
           !detect_ipad() &&
@@ -325,7 +345,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is an iPod Touch.
      * @return detection of an iPod Touch
 
@@ -338,7 +358,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is an iPad tablet.
      * @return detection of an iPad
 
@@ -351,7 +371,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is an iPhone or iPod Touch.
      * @return detection of an iPhone or iPod Touch
 
@@ -365,7 +385,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects *any* iOS device: iPhone, iPod Touch, iPad.
      * @return detection of an Apple iOS device
 
@@ -379,31 +399,23 @@ module MobileESPConverted
 
 
 =begin
-     *
+*
      * Detects *any* Android OS-based device: phone, tablet, and multi-media player.
      * Also detects Google TV.
      * @return detection of an Android device
 
 =end
     def detect_android()
-      if ((@init_completed == true) ||
-          (@is_android == true))
-        return @is_android
-      end
-
       if ((user_agent.include?(DEVICE_ANDROID)) ||
           detect_google_t_v())
         return true
       end
 
-      if (user_agent.include?(DEVICE_HTC_FLYER))
-        return true
-      end
       return false
     end
 
 =begin
-     *
+*
      * Detects if the current device is a (small-ish) Android OS-based device
      * used for calling and/or multi-media (like a Samsung Galaxy Player).
      * Google says these devices will have 'Android' AND 'mobile' in user agent.
@@ -412,27 +424,26 @@ module MobileESPConverted
 
 =end
     def detect_android_phone()
-      if ((@init_completed == true) ||
-          (@is_android_phone == true))
-        return @is_android_phone
+
+      if (!detect_android())
+        return false
       end
 
-      if (detect_android() && (user_agent.include?(MOBILE)))
+
+      if (user_agent.include?(MOBILE))
         return true
       end
 
-      if (detect_opera_android_phone())
+
+      if (detect_opera_mobile())
         return true
       end
 
-      if (user_agent.include?(DEVICE_HTC_FLYER))
-        return true
-      end
       return false
     end
 
 =begin
-     *
+*
      * Detects if the current device is a (self-reported) Android tablet.
      * Google says these devices will have 'Android' and NOT 'mobile' in their user agent.
      * @return detection of an Android tablet
@@ -449,10 +460,6 @@ module MobileESPConverted
         return false
       end
 
-      if (user_agent.include?(DEVICE_HTC_FLYER))
-        return false
-      end
-
 
       if ((user_agent.include?(MOBILE)))
         return false
@@ -462,7 +469,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is an Android OS-based device and
      * the browser is based on WebKit.
      * @return detection of an Android WebKit browser
@@ -476,7 +483,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is a GoogleTV.
      * @return detection of GoogleTV
 
@@ -489,40 +496,64 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current browser is based on WebKit.
      * @return detection of a WebKit browser
 
 =end
     def detect_webkit()
-      if ((@init_completed == true) ||
-          (@is_webkit == true))
-        return @is_webkit
-      end
-
       if (user_agent.include?(ENGINE_WEB_KIT))
         return true
       end
       return false
     end
 
-
 =begin
-     *
-     * Detects if the current browser is EITHER a Windows Phone 7.x OR 8 device
-     * @return detection of Windows Phone 7.x OR 8
+*
+     * Detects if the current browser is the Symbian S60 Open Source Browser.
+     * @return detection of Symbian S60 Browser
 
 =end
-    def detect_windows_phone()
-      if (detect_windows_phone7() || detect_windows_phone8())
+    def detect_s60_oss_browser()
+
+      if (detect_webkit() && (user_agent.include?(DEVICE_SYMBIAN) || user_agent.include?(DEVICE_S60)))
         return true
       end
       return false
     end
 
 =begin
+*
      *
-     * Detects a Windows Phone 7.x device (in mobile browsing mode).
+     * Detects if the current device is any Symbian OS-based device,
+     *   including older S60, Series 70, Series 80, Series 90, and UIQ,
+     *   or other browsers running on these devices.
+     * @return detection of SymbianOS
+
+=end
+    def detect_symbian_o_s()
+      if (user_agent.include?(DEVICE_SYMBIAN) || user_agent.include?(DEVICE_S60) || user_agent.include?(DEVICE_S70) || user_agent.include?(DEVICE_S80) || user_agent.include?(DEVICE_S90))
+        return true
+      end
+      return false
+    end
+
+=begin
+*
+     * Detects if the current browser is a Windows Phone 7.x, 8, or 10 device
+     * @return detection of Windows Phone 7.x OR 8
+
+=end
+    def detect_windows_phone()
+      if (detect_windows_phone7() || detect_windows_phone8() || detect_windows_phone10())
+        return true
+      end
+      return false
+    end
+
+=begin
+*
+     * Detects a Windows Phone 7 device (in mobile browsing mode).
      * @return detection of Windows Phone 7
 
 =end
@@ -534,7 +565,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects a Windows Phone 8 device (in mobile browsing mode).
      * @return detection of Windows Phone 8
 
@@ -547,7 +578,20 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
+     * Detects a Windows Phone 10 device (in mobile browsing mode).
+     * @return detection of Windows Phone 10
+
+=end
+    def detect_windows_phone10()
+      if (user_agent.include?(DEVICE_WIN_PHONE10))
+        return true
+      end
+      return false
+    end
+
+=begin
+*
      * Detects if the current browser is a Windows Mobile device.
      * Excludes Windows Phone 7.x and 8 devices.
      * Focuses on Windows Mobile 6.xx and earlier.
@@ -558,6 +602,7 @@ module MobileESPConverted
       if (detect_windows_phone())
         return false
       end
+
 
 
       if (user_agent.include?(DEVICE_WIN_MOB) || user_agent.include?(DEVICE_WIN_MOB) || user_agent.include?(DEVICE_IE_MOB) || user_agent.include?(ENGINE_PIE) || (user_agent.include?(MANU_HTC) && user_agent.include?(DEVICE_WINDOWS)) || (detect_wap_wml() && user_agent.include?(DEVICE_WINDOWS)))
@@ -573,9 +618,8 @@ module MobileESPConverted
       return false
     end
 
-
 =begin
-     *
+*
      * Detects if the current browser is any BlackBerry.
      * Includes BB10 OS, but excludes the PlayBook.
      * @return detection of Blackberry
@@ -595,7 +639,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current browser is a BlackBerry 10 OS phone.
      * Excludes tablets.
      * @return detection of a Blackberry 10 device
@@ -610,7 +654,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current browser is on a BlackBerry tablet device.
      *    Example: PlayBook
      * @return detection of a Blackberry Tablet
@@ -624,7 +668,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current browser is a BlackBerry device AND uses a
      *    WebKit-based browser. These are signatures for the new BlackBerry OS 6.
      *    Examples: Torch. Includes the Playbook.
@@ -632,14 +676,15 @@ module MobileESPConverted
 
 =end
     def detect_black_berry_web_kit()
-      if (detect_black_berry() && detect_webkit())
+      if (detect_black_berry() &&
+          user_agent.include?(ENGINE_WEB_KIT))
         return true
       end
       return false
     end
 
 =begin
-     *
+*
      * Detects if the current browser is a BlackBerry Touch
      * device, such as the Storm, Torch, and Bold Touch. Excludes the Playbook.
      * @return detection of a Blackberry touchscreen device
@@ -650,14 +695,14 @@ module MobileESPConverted
           (user_agent.include?(DEVICE_B_B_STORM) ||
            user_agent.include?(DEVICE_B_B_TORCH) ||
            user_agent.include?(DEVICE_B_B_BOLD_TOUCH) ||
-           user_agent.include?(DEVICE_B_B_CURVE_TOUCH)) )
+           user_agent.include?(DEVICE_B_B_CURVE_TOUCH) ))
         return true
       end
       return false
     end
 
 =begin
-     *
+*
      * Detects if the current browser is a BlackBerry device AND
      *   has a more capable recent browser. Excludes the Playbook.
      *   Examples, Storm, Bold, Tour, Curve2
@@ -682,7 +727,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current browser is a BlackBerry device AND
      *   has an older, less capable browser.
      *   Examples: Pearl, 8800, Curve1
@@ -702,59 +747,27 @@ module MobileESPConverted
       end
     end
 
-
 =begin
-     *
-     * Detects if the current browser is the Symbian S60 Open Source Browser.
-     * @return detection of Symbian S60 Browser
-
-=end
-    def detect_s60_oss_browser()
-
-      if (detect_webkit() && (user_agent.include?(DEVICE_SYMBIAN) || user_agent.include?(DEVICE_S60)))
-        return true
-      end
-      return false
-    end
-
-=begin
-     *
-     *
-     * Detects if the current device is any Symbian OS-based device,
-     *   including older S60, Series 70, Series 80, Series 90, and UIQ,
-     *   or other browsers running on these devices.
-     * @return detection of SymbianOS
-
-=end
-    def detect_symbian_o_s()
-      if (user_agent.include?(DEVICE_SYMBIAN) || user_agent.include?(DEVICE_S60) || user_agent.include?(DEVICE_S70) || user_agent.include?(DEVICE_S80) || user_agent.include?(DEVICE_S90))
-        return true
-      end
-      return false
-    end
-
-
-=begin
-     *
+*
      * Detects if the current browser is on a PalmOS device.
      * @return detection of a PalmOS device
 
 =end
     def detect_palm_o_s()
 
-      if (detect_palm_web_o_s())
-        return false
-      end
-
-
       if (user_agent.include?(DEVICE_PALM) || user_agent.include?(ENGINE_BLAZER) || user_agent.include?(ENGINE_XIINO))
-        return true
+
+        if (detect_palm_web_o_s())
+          return false
+        else
+          return true
+        end
       end
       return false
     end
 
 =begin
-     *
+*
      * Detects if the current browser is on a Palm device
      *    running the new WebOS.
      * @return detection of a Palm WebOS device
@@ -768,7 +781,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current browser is on an HP tablet running WebOS.
      * @return detection of an HP WebOS tablet
 
@@ -782,7 +795,21 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
+     * Detects if the current browser is on a WebOS smart TV.
+     * @return detection of a WebOS smart TV
+
+=end
+    def detect_web_o_s_t_v()
+      if (user_agent.include?(DEVICE_WEB_O_STV) &&
+          user_agent.include?(SMART_T_V2))
+        return true
+      end
+      return false
+    end
+
+=begin
+*
      * Detects Opera Mobile or Opera Mini.
      * @return detection of an Opera browser for a mobile device
 
@@ -795,33 +822,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
-     * Detects Opera Mobile on an Android phone.
-     * @return detection of an Opera browser on an Android phone
-
-=end
-    def detect_opera_android_phone()
-      if (user_agent.include?(ENGINE_OPERA) && (user_agent.include?(DEVICE_ANDROID) && user_agent.include?(MOBI)))
-        return true
-      end
-      return false
-    end
-
-=begin
-     *
-     * Detects Opera Mobile on an Android tablet.
-     * @return detection of an Opera browser on an Android tablet
-
-=end
-    def detect_opera_android_tablet()
-      if (user_agent.include?(ENGINE_OPERA) && (user_agent.include?(DEVICE_ANDROID) && user_agent.include?(DEVICE_TABLET)))
-        return true
-      end
-      return false
-    end
-
-=begin
-     *
+*
      * Detects if the current device is an Amazon Kindle (eInk devices only).
      * Note: For the Kindle Fire, use the normal Android methods.
      * @return detection of a Kindle
@@ -836,7 +837,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current Amazon device is using the Silk Browser.
      * Note: Typically used by the the Kindle Fire.
      * @return detection of an Amazon Kindle Fire in Silk mode.
@@ -850,7 +851,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current browser is a
      *    Garmin Nuvifone.
      * @return detection of a Garmin Nuvifone
@@ -864,8 +865,8 @@ module MobileESPConverted
     end
 
 =begin
-     *
-     * Detects a device running the Bada smartphone OS from Samsung.
+*
+     * Detects a device running the Bada OS from Samsung.
      * @return detection of a Bada device
 
 =end
@@ -877,20 +878,35 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects a device running the Tizen smartphone OS.
      * @return detection of a Tizen device
 
 =end
     def detect_tizen()
-      if (user_agent.include?(DEVICE_TIZEN))
+      if (user_agent.include?(DEVICE_TIZEN) &&
+          user_agent.include?(MOBILE))
         return true
       end
       return false
     end
 
 =begin
-     *
+*
+     * Detects if the current browser is on a Tizen smart TV.
+     * @return detection of a Tizen smart TV
+
+=end
+    def detect_tizen_t_v()
+      if (user_agent.include?(DEVICE_TIZEN) &&
+          user_agent.include?(SMART_T_V1))
+        return true
+      end
+      return false
+    end
+
+=begin
+*
      * Detects a device running the Meego OS.
      * @return detection of a Meego device
 
@@ -903,7 +919,143 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
+     * Detects a phone running the Meego OS.
+     * @return detection of a Meego phone
+
+=end
+    def detect_meego_phone()
+      if (user_agent.include?(DEVICE_MEEGO) &&
+          user_agent.include?(MOBI))
+        return true
+      end
+      return false
+    end
+
+=begin
+*
+     * Detects a mobile device (probably) running the Firefox OS.
+     * @return detection of a Firefox OS mobile device
+
+=end
+    def detect_firefox_o_s()
+      if (detect_firefox_o_s_phone() || detect_firefox_o_s_tablet())
+        return true
+      end
+
+      return false
+    end
+
+=begin
+*
+     * Detects a phone (probably) running the Firefox OS.
+     * @return detection of a Firefox OS phone
+
+=end
+    def detect_firefox_o_s_phone()
+
+      if (detect_ios() || detect_android() || detect_sailfish())
+        return false
+      end
+
+      if ((user_agent.include?(ENGINE_FIREFOX)) && (user_agent.include?(MOBILE)))
+        return true
+      end
+
+      return false
+    end
+
+=begin
+*
+     * Detects a tablet (probably) running the Firefox OS.
+     * @return detection of a Firefox OS tablet
+
+=end
+    def detect_firefox_o_s_tablet()
+
+      if (detect_ios() || detect_android() || detect_sailfish())
+        return false
+      end
+
+      if ((user_agent.include?(ENGINE_FIREFOX)) && (user_agent.include?(DEVICE_TABLET)))
+        return true
+      end
+
+      return false
+    end
+
+=begin
+*
+     * Detects a device running the Sailfish OS.
+     * @return detection of a Sailfish device
+
+=end
+    def detect_sailfish()
+      if (user_agent.include?(DEVICE_SAILFISH))
+        return true
+      end
+      return false
+    end
+
+=begin
+*
+     * Detects a phone running the Sailfish OS.
+     * @return detection of a Sailfish phone
+
+=end
+    def detect_sailfish_phone()
+      if (detect_sailfish() && (user_agent.include?(MOBILE)))
+        return true
+      end
+
+      return false
+    end
+
+=begin
+*
+     * Detects a mobile device running the Ubuntu Mobile OS.
+     * @return detection of an Ubuntu Mobile OS mobile device
+
+=end
+    def detect_ubuntu()
+      if (detect_ubuntu_phone() || detect_ubuntu_tablet())
+        return true
+      end
+
+      return false
+    end
+
+=begin
+*
+     * Detects a phone running the Ubuntu Mobile OS.
+     * @return detection of an Ubuntu Mobile OS phone
+
+=end
+    def detect_ubuntu_phone()
+      if ((user_agent.include?(DEVICE_UBUNTU)) && (user_agent.include?(MOBILE)))
+        return true
+      end
+
+      return false
+    end
+
+=begin
+*
+     * Detects a tablet running the Ubuntu Mobile OS.
+     * @return detection of an Ubuntu Mobile OS tablet
+
+=end
+    def detect_ubuntu_tablet()
+      if ((user_agent.include?(DEVICE_UBUNTU)) && (user_agent.include?(DEVICE_TABLET)))
+        return true
+      end
+
+      return false
+    end
+
+
+=begin
+*
      * Detects the Danger Hiptop device.
      * @return detection of a Danger Hiptop
 
@@ -916,7 +1068,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current browser is a Sony Mylo device.
      * @return detection of a Sony Mylo device
 
@@ -929,7 +1081,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is on one of the Maemo-based Nokia Internet Tablets.
      * @return detection of a Maemo OS tablet
 
@@ -944,7 +1096,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is an Archos media player/Internet tablet.
      * @return detection of an Archos media player
 
@@ -957,7 +1109,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is an Internet-capable game console.
      * Includes many handheld consoles.
      * @return detection of any Game Console
@@ -971,7 +1123,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is a Sony Playstation.
      * @return detection of Sony Playstation
 
@@ -984,7 +1136,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is a handheld gaming device with
      * a touchscreen and modern iPhone-class browser. Includes the Playstation Vita.
      * @return detection of a handheld gaming device
@@ -999,7 +1151,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is a Nintendo game device.
      * @return detection of Nintendo
 
@@ -1012,7 +1164,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device is a Microsoft Xbox.
      * @return detection of Xbox
 
@@ -1025,7 +1177,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects whether the device is a Brew-powered device.
      * @return detection of a Brew device
 
@@ -1038,7 +1190,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects whether the device supports WAP or WML.
      * @return detection of a WAP- or WML-capable device
 
@@ -1051,7 +1203,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * Detects if the current device supports MIDP, a mobile Java technology.
      * @return detection of a MIDP mobile Java-capable device
 
@@ -1064,8 +1216,13 @@ module MobileESPConverted
     end
 
 
+
+
+
+
+
 =begin
-     *
+*
      * Check to see whether the device is any device
      *   in the 'smartphone' category.
      * @return detection of a general smartphone device
@@ -1073,11 +1230,11 @@ module MobileESPConverted
 =end
     def detect_smartphone()
 
-      return (detect_tier_iphone() || detect_s60_oss_browser() || detect_symbian_o_s() || detect_windows_mobile() || detect_black_berry() || detect_palm_o_s())
+      return (detect_tier_iphone() || detect_s60_oss_browser() || detect_symbian_o_s() || detect_windows_mobile() || detect_black_berry() || detect_meego_phone() || detect_palm_o_s())
     end
 
 =begin
-     *
+*
      *    Detects if the current device is a mobile device.
      *  This method catches most of the popular modern devices.
      *  Excludes Apple iPads and other modern tablets.
@@ -1086,38 +1243,20 @@ module MobileESPConverted
 =end
     def detect_mobile_quick()
 
-      if (detect_tier_tablet())
+      if (is_tier_tablet)
         return false
       end
-
-      if ((init_completed == true) ||
-          (is_mobile_phone == true))
-        return is_mobile_phone
-      end
-
 
       if (detect_smartphone())
         return true
       end
 
-      if (detect_wap_wml() || detect_brew_device() || detect_opera_mobile())
-        return true
-      end
-
-      if ((user_agent.include?(ENGINE_OBIGO)) || (user_agent.include?(ENGINE_NETFRONT)) || (user_agent.include?(ENGINE_UP_BROWSER)) || (user_agent.include?(ENGINE_OPEN_WEB)))
-        return true
-      end
-
-      if (detect_danger_hiptop() || detect_midp_capable() || detect_maemo_tablet() || detect_archos())
-        return true
-      end
-
-      if ((user_agent.include?(DEVICE_PDA)) &&
-          (!user_agent.include?(DIS_UPDATE)))
-        return true
-      end
 
       if (user_agent.include?(MOBILE))
+        return true
+      end
+
+      if (detect_opera_mobile())
         return true
       end
 
@@ -1126,11 +1265,19 @@ module MobileESPConverted
         return true
       end
 
+      if (detect_wap_wml() || detect_midp_capable() || detect_brew_device())
+        return true
+      end
+
+      if ((user_agent.include?(ENGINE_NETFRONT)) || (user_agent.include?(ENGINE_UP_BROWSER)))
+        return true
+      end
+
       return false
     end
 
 =begin
-     *
+*
      * The longer and more thorough way to detect for a mobile device.
      *   Will probably detect most feature phones,
      *   smartphone-class devices, Internet Tablets,
@@ -1141,31 +1288,21 @@ module MobileESPConverted
 
 =end
     def detect_mobile_long()
-      if (detect_mobile_quick() || detect_game_console() || detect_sony_mylo())
+      if (detect_mobile_quick() || detect_game_console())
+        return true
+      end
+
+      if (detect_danger_hiptop() || detect_maemo_tablet() || detect_sony_mylo() || detect_archos())
+        return true
+      end
+
+      if ((user_agent.include?(DEVICE_PDA)) &&
+          (!user_agent.include?(DIS_UPDATE)))
         return true
       end
 
 
-      if (user_agent.include?(UPLINK))
-        return true
-      end
-      if (user_agent.include?(MANU_SONY_ERICSSON))
-        return true
-      end
-      if (user_agent.include?(MANUERICSSON))
-        return true
-      end
-      if (user_agent.include?(MANU_SAMSUNG1))
-        return true
-      end
-
-      if (user_agent.include?(SVC_DOCOMO))
-        return true
-      end
-      if (user_agent.include?(SVC_KDDI))
-        return true
-      end
-      if (user_agent.include?(SVC_VODAFONE))
+      if ((user_agent.include?(UPLINK)) || (user_agent.include?(ENGINE_OPEN_WEB)) || (user_agent.include?(MANU_SAMSUNG1)) || (user_agent.include?(MANU_SONY_ERICSSON)) || (user_agent.include?(MANUERICSSON)) || (user_agent.include?(SVC_DOCOMO)) || (user_agent.include?(SVC_KDDI)) || (user_agent.include?(SVC_VODAFONE)))
         return true
       end
 
@@ -1173,8 +1310,11 @@ module MobileESPConverted
     end
 
 
+
+
+
 =begin
-     *
+*
      * The quick way to detect for a tier of devices.
      *   This method detects for the new generation of
      *   HTML 5 capable, larger screen tablets.
@@ -1183,19 +1323,14 @@ module MobileESPConverted
 
 =end
     def detect_tier_tablet()
-      if ((@init_completed == true) ||
-          (@is_tier_tablet == true))
-        return @is_tier_tablet
-      end
-
-      if (detect_ipad() || detect_android_tablet() || detect_black_berry_tablet() || detect_web_o_s_tablet())
+      if (detect_ipad() || detect_android_tablet() || detect_black_berry_tablet() || detect_firefox_o_s_tablet() || detect_ubuntu_tablet() || detect_web_o_s_tablet())
         return true
       end
       return false
     end
 
 =begin
-     *
+*
      * The quick way to detect for a tier of devices.
      *   This method detects for devices which can
      *   display iPhone-optimized web content.
@@ -1204,19 +1339,14 @@ module MobileESPConverted
 
 =end
     def detect_tier_iphone()
-      if ((@init_completed == true) ||
-          (@is_tier_iphone == true))
-        return @is_tier_iphone
-      end
-
-      if (detect_iphone_or_ipod() || detect_android_phone() || detect_windows_phone() || detect_black_berry10_phone() || (detect_black_berry_web_kit() && detect_black_berry_touch()) || detect_palm_web_o_s() || detect_bada() || detect_tizen() || detect_gaming_handheld())
+      if (detect_iphone_or_ipod() || detect_android_phone() || detect_windows_phone() || detect_black_berry10_phone() || (detect_black_berry_web_kit() && detect_black_berry_touch()) || detect_palm_web_o_s() || detect_bada() || detect_tizen() || detect_firefox_o_s_phone() || detect_sailfish_phone() || detect_ubuntu_phone() || detect_gaming_handheld())
         return true
       end
       return false
     end
 
 =begin
-     *
+*
      * The quick way to detect for a tier of devices.
      *   This method detects for devices which are likely to be capable
      *   of viewing CSS content optimized for the iPhone,
@@ -1226,11 +1356,6 @@ module MobileESPConverted
 
 =end
     def detect_tier_rich_css()
-      if ((@init_completed == true) ||
-          (@is_tier_rich_css == true))
-        return @is_tier_rich_css
-      end
-
       result = false
 
 
@@ -1238,6 +1363,8 @@ module MobileESPConverted
 
 
         if (!detect_tier_iphone() && !detect_kindle())
+
+
 
 
           if (detect_webkit() || detect_s60_oss_browser() || detect_black_berry_high() || detect_windows_mobile() || user_agent.include?(ENGINE_TELECA_Q))
@@ -1249,7 +1376,7 @@ module MobileESPConverted
     end
 
 =begin
-     *
+*
      * The quick way to detect for a tier of devices.
      *   This method detects for all other types of phones,
      *   but excludes the iPhone and RichCSS Tier devices.
@@ -1257,16 +1384,10 @@ module MobileESPConverted
 
 =end
     def detect_tier_other_phones()
-      if ((@init_completed == true) ||
-          (@is_tier_generic_mobile == true))
-        return @is_tier_generic_mobile
-      end
-
 
       if (detect_mobile_long() && !detect_tier_iphone() && !detect_tier_rich_css())
         return true
       end
-
       return false
     end
   end
