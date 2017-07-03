@@ -29,6 +29,20 @@ module MobileESPConverted
         uai.detect_android_tablet.must_equal false
       end
 
+      it "categorizes iPad Pro/Safari" do
+        uai = UserAgentInfo.new("Mozilla/5.0 (iPad; CPU OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E8301 Safari/602.1", "text/html")
+        uai.detect_ipad.must_equal true
+        uai.is_iphone.must_equal false
+        uai.is_tier_tablet.must_equal true
+        uai.is_tier_iphone.must_equal false
+        uai.is_tier_rich_css.must_equal false
+        uai.is_tier_generic_mobile.must_equal false
+        uai.detect_iphone.must_equal false
+        uai.detect_ipad.must_equal true
+        uai.detect_android_phone.must_equal false
+        uai.detect_android_tablet.must_equal false
+      end
+
       it "categorizes Android phone / Android Browser" do
         # UA string for Google Nexus S
         uai = UserAgentInfo.new("Mozilla/5.0 (Linux; U; Android 2.3.4; fr-fr; Nexus S Build/GRJ22) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", "text/html")
